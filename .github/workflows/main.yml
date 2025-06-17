@@ -31,4 +31,6 @@ jobs:
       - name: Call deleteAll API
         run: |
           curl -s -X POST "https://greenforestimage.com/api/BOOKINGS/queues/deleteAll?DeletePermanently=true" \
-            -H "Authorization: Bearer ${{ steps.login.outputs.token }}"
+            -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
+            -d ''
+
