@@ -3,7 +3,7 @@ name: Delete All Queues (with login)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 16 * * *'  # 每天 UTC 09:50 = 香港時間 17:50
+    - cron: '0 16 * * *'  # force update to every day 00:00
 
 jobs:
   call-api-with-auth:
