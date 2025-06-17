@@ -21,7 +21,7 @@ jobs:
             -d '{"loginName":"${{ secrets.API_LOGINNAME }}","password":"${{ secrets.API_PASSWORD }}"}')
 
           echo "Login response: $RESPONSE"
-          TOKEN=$(echo "$RESPONSE" | jq -r .jwtToken)
+          TOKEN=$(echo "$RESPONSE" | jq -r .data.jwtToken)
           if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
             echo "❌ Failed to get jwtToken"
             exit 1
