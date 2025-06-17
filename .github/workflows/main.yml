@@ -18,7 +18,7 @@ jobs:
         run: |
           RESPONSE=$(curl -s -X POST https://greenforestimage.com/api/Users/authenticate-by-loginname \
             -H "Content-Type: application/json" \
-            -d '{"loginName":"${{ secrets.API_EMAIL }}","password":"${{ secrets.API_PASSWORD }}"}')
+            -d '{"loginName":"${{ secrets.API_LOGINNAME }}","password":"${{ secrets.API_PASSWORD }}"}')
 
           echo "Login response: $RESPONSE"
           TOKEN=$(echo "$RESPONSE" | jq -r .jwtToken)
