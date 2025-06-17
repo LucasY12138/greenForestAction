@@ -1,0 +1,33 @@
+name: Delete All Queues (with login)
+
+on:
+  schedule:
+    - cron: '50 9 * * *'  # 每天 UTC 09:50 = 香港時間 17:50
+
+jobs:
+  call-api-with-auth:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install jq (for parsing JSON)
+        run: sudo apt-get install -y jq
+
+      - name: Login to get jwtToken
+        id: login
+        run: |
+          RESPONSE=$(curl -s -X POST https://greenforestimage.com/api/Users/authenticate-by-loginname \
+            -H "Content-Type: application/json" \
+            -d '{"loginName":"${{ secrets.API_EMAIL }}","password":"${{ secrets.API_PASSWORD }}"}')
+
+          echo "Login response: $RESPONSE"
+          TOKEN=$(echo "$RESPONSE" | jq -r .jwtToken)
+          if [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "❌ Failed to get jwtToken"
+            exit 1
+          fi
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Call deleteAll API
+        run: |
+          curl -s -X POST "https://greenforestimage.com/api/BOOKINGS/queues/deleteAll?DeletePermanently=true" \
+            -H "Authorization: Bearer ${{ steps.login.outputs.token }}"
