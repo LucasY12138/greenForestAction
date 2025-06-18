@@ -1,9 +1,9 @@
-name: Delete All Queues (with login)
+name: Refresh Queue System (with login)
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 16 * * *'  # force update to every day 00:00
+    - cron: '0 16 * * *'  # 每天香港 00:00（UTC 16:00）自动触发
 
 jobs:
   call-api-with-auth:
@@ -34,3 +34,30 @@ jobs:
             -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
             -d ''
 
+      - name: Reset all queue types
+        run: |
+          # 1. 先呼叫 search 接口，獲取所有 queueTypeGuid
+          SEARCH_RESP=$(curl -s -X GET https://greenforestimage.com/api/BOOKINGS/queues/types/search \
+            -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
+            -H "Content-Type: application/json")
+
+          echo "Search response: $SEARCH_RESP"
+
+          # 2. 用 jq 提取所有 GUID
+          GUIDS=$(echo "$SEARCH_RESP" \
+            | jq -r '.data.types[].queueTypeGuid')
+
+          if [ -z "$GUIDS" ]; then
+            echo "❌ No queueTypeGuid found"
+            exit 1
+          fi
+
+          # 3. 循環對每個 GUID 執行 update
+          for GUID in $GUIDS; do
+            echo "Updating queueTypeGuid: $GUID"
+            curl -s -X POST "https://greenforestimage.com/api/BOOKINGS/queues/types/update/${GUID}" \
+              -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
+              -H "Content-Type: application/json" \
+              -d '{"nextTicketNo":0,"lastCalledNo":0}' \
+              || echo "⚠️ Failed to update $GUID"
+          done
