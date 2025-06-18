@@ -58,6 +58,6 @@ jobs:
             curl -s -X POST "https://greenforestimage.com/api/BOOKINGS/queues/types/update/${GUID}" \
               -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
               -H "Content-Type: application/json" \
-              -d '{"nextTicketNo":0,"lastCalledNo":0}' \
+              -d '{"nextTicketNo":1,"lastCalledNo":0}' \
               || echo "⚠️ Failed to update $GUID"
           done
